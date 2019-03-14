@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="category">
+	<insert id="insert" parameterType="categoryvo">
+		<selectKey keyProperty="no" resultType="long" order="AFTER">
+		<![CDATA[
+		select last_insert_id();
+		]]>
+		</selectKey>
+		<![CDATA[
+		insert 
+		 into category 
+		values(null, #{name }, #{description }, now(), #{user_no });
+		]]>
+	</insert>
+	<select id="getListSearchNo" resultType="categoryvo"
+		parameterType="long">
+		<![CDATA[
+		select 
+			no,
+			name,
+			description
+		 from category 
+		where no = #{no }
+		]]>
+	</select>
+
+<!-- 
+	<select id="getListAndPage" resultType="categoryvo"
+		parameterType="long">
+		<![CDATA[
+		select no, 
+			   name,
+			   description
+			from category
+			where user_no = #{no }
+		order by no
+		]]>
+	</select>
+-->
+	<select id="getListAndPage" resultType="categoryvo"
+		parameterType="long">
+		<![CDATA[
+		select a.no, a.name, a.description, (select count(*) from post where category_no=a.no) count
+ 			 from category a left join post b
+ 			 on a.no = b.CATEGORY_NO
+ 			 where a.user_no = #{no }
+  			group by a.no
+ 			 order by a.no
+		]]>
+	</select>
+
+
+	<delete id="delete" parameterType="categoryvo">
+		<![CDATA[
+			delete
+				from category
+				where no= #{no }
+		]]>
+	</delete>
+
+	<select id="getCategoryName" parameterType="long"
+		resultType="categoryvo">
+		<![CDATA[
+			select a.no, a.name, a.description, (select count(*) from post where category_no=a.no) count
+ 			 from category a left join post b
+ 			 on a.no = b.CATEGORY_NO
+ 			 where a.user_no = #{no }
+  			group by a.no
+ 			 order by a.no
+		]]>
+	</select>
+	
+	<select id="getLastCategoryNo" parameterType="long"
+	resultType="long">
+	<![CDATA[
+		select ifnull(max(a.no), 0) as no
+		from category a, post b
+    	where a.no = b.category_no
+		and user_no = #{no }
+	
+	]]>
+	</select>
+
+</mapper>

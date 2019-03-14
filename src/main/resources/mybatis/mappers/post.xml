@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="post">
+	<insert id="insertPost" parameterType="postvo">
+		<![CDATA[
+		insert 
+		into post 
+		values (null, #{title }, #{content }, now(), #{category_no } )
+		]]>
+	</insert>
+
+	<select id="getMainPostList" resultType="postvo"
+		parameterType="categoryvo">
+	<![CDATA[
+	select b.title as title, date_format(b.reg_date, '%Y-%m-%d') as reg_date, a.name as content, b.no as no, b.category_no
+		from category a, post b, user c
+    	where a.no = b.category_no
+    	and a.user_no = c.no
+    	and c.no = #{user_no }
+    	and a.no = #{no }
+   	 order by a.name asc, reg_date asc
+	]]>
+	</select>
+
+	<select id="lastPostNo" resultType="long" parameterType="postvo">
+	<![CDATA[
+		select ifnull(max(b.no), 0) as lastPostNo
+		from category a, post b, user c 
+   		 where a.no = b.category_no
+   		 and a.user_no = c.no
+   		 and b.category_no = #{category_no}
+  	     and c.no = #{no }	
+	]]>
+	</select>
+
+	<select id="getMainPost" resultType="postvo"
+		parameterType="postvo">
+	<![CDATA[
+	select title, content, no, category_no
+	from post
+    where category_no = #{category_no }
+    and no = #{no }
+	]]>
+	</select>
+</mapper>
